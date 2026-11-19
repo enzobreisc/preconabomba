@@ -1,0 +1,38 @@
+---
+// Minha cidade: estado → cidade → posto. Por enquanto só Santa Catarina.
+import 'maplibre-gl/dist/maplibre-gl.css';
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  titulo="Preço na Bomba · Minha cidade"
+  descricao="Preço dos combustíveis em cada posto de Santa Catarina, com os dados abertos da ANP."
+  atual="cidade"
+>
+  <main class="f-main" id="app">
+    <nav class="crumbs" id="crumbs" aria-label="Você está em"></nav>
+    <section id="topo" aria-live="polite"><p class="hint">Carregando os postos…</p></section>
+    <div class="palco" id="palco" data-passo="1">
+      <div class="p-front" id="front"></div>
+      <div class="p-mapa" id="p-mapa">
+        <div class="card-h"><h4>Onde fica</h4><span id="onde"></span></div>
+        <div class="mapa-box">
+          <div id="mapa" role="region" aria-label="Mapa"></div>
+          <div class="cm-top" id="cm-top"></div>
+          <div class="cm-leg" id="cm-leg"></div>
+        </div>
+        <p class="nota-mapa" id="nota-mapa"></p>
+      </div>
+      <aside class="p-side" id="side"></aside>
+    </div>
+    <p class="foot">
+      Fonte: ANP, Levantamento de Preços de Combustíveis, pesquisa semanal por amostragem de postos. Preço
+      mais recente de cada posto nas últimas semanas. Localização a partir do endereço, com o{' '}
+      <a href="https://nominatim.org/">Nominatim</a> e dados do OpenStreetMap.
+    </p>
+  </main>
+  <script>
+    import { iniciar } from '../scripts/minha-cidade';
+    iniciar();
+  </script>
+</Base>

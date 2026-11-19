@@ -3,37 +3,24 @@
 
 import type { GeoJSONSource, Map as MLMap, MapLayerMouseEvent } from 'maplibre-gl';
 import {
-  COMB, COMBUSTIVEIS, type Cidade, type Posto, brl, dataBR, esc, montar, nf, precosDe, resumo,
+  COMB, COMBUSTIVEIS, artigo, type Cidade, type Posto, brl, dataBR, esc, montar, nf, precosDe, resumo,
   type GeoMunicipio, type Linha,
 } from '../lib/dados';
 import { fachada, ledSVG } from '../lib/fachada';
 import { SC } from '../lib/sc';
+import { $, abasComCombustivel, esconderDica, estreito, json, mostrarDica, reduzir } from '../lib/web';
 
-const BASE = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const ESTILO = 'https://tiles.openfreemap.org/styles/positron';
 const FONTE = ['Noto Sans Bold'];
 const FONTE_REG = ['Noto Sans Regular'];
 const SEQ = ['#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#256abf', '#184f95', '#0d366b'];
-const reduzir = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const estreito = () => matchMedia('(max-width: 820px)').matches;
 
 type Estado = { fuel: string; cidade: string | null; posto: string | null };
 const estado: Estado = { fuel: 'gasolina comum', cidade: null, posto: null };
 let D: ReturnType<typeof montar>;
 let mapa: MLMap;
 
-const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector(s) as T;
-
 /* ---------------- dados ---------------- */
-
-async function json<T>(caminho: string, padrao?: T): Promise<T> {
-  const r = await fetch(BASE + caminho);
-  if (!r.ok) {
-    if (padrao !== undefined) return padrao;
-    throw new Error(`${caminho}: ${r.status}`);
-  }
-  return r.json();
-}
 
 const cidadesOrdenadas = (k: string) =>
   [...D.cidades.values()]
@@ -266,7 +253,7 @@ function topoEstado() {
   if (!r || !lista.length) return `<div class="hero"><p class="q">Quanto custa em Santa Catarina?</p><h2>Nenhum posto pesquisado vende ${F.l} em Santa Catarina nesta semana.</h2></div><div class="filters">${selUF()}${selFuel()}</div>`;
   const lo = lista[0], hi = lista.at(-1)!;
   return `<div class="hero"><p class="q">Quanto custa em Santa Catarina?</p>
-    <h2>Em Santa Catarina, a ${F.l} sai por ${brl(r.med)} o ${F.u} na mediana. ${esc(lo.c.nome)} tem o preço mais baixo: ${brl(lo.r.med)}.</h2>
+    <h2>Em Santa Catarina, ${artigo(estado.fuel)} ${F.l} sai por ${brl(r.med)} o ${F.u} na mediana. ${esc(lo.c.nome)} tem o preço mais baixo: ${brl(lo.r.med)}.</h2>
     <p class="s">Entre a cidade mais barata e a mais cara, a diferença é de ${brl((hi.r.med - lo.r.med) * F.tanque, 0)} num tanque de ${F.tanque}&nbsp;${F.u === 'm³' ? 'm³' : 'L'}. Escolha uma cidade para ver os postos.</p></div>
     <div class="filters">${selUF()}${selFuel()}</div>
     <div class="kpis">${kpi('Preço mediano, SC', brl(r.med), `${r.n} postos com ${F.l}`)}${kpi('Cidade mais barata', brl(lo.r.med), esc(lo.c.nome))}${kpi('Cidade mais cara', brl(hi.r.med), esc(hi.c.nome))}${kpi('Postos pesquisados', String(D.postos.size), `em ${D.cidades.size} cidades`)}</div>`;
@@ -423,6 +410,7 @@ function rolarAte(sel: string) {
 
 /* URL: #cidade=Florianopolis&posto=00000000000000&comb=etanol (voltar do navegador funciona) */
 function gravarURL() {
+  abasComCombustivel(estado.fuel);
   const q = new URLSearchParams();
   if (estado.cidade) q.set('cidade', estado.cidade);
   if (estado.posto) q.set('posto', estado.posto);
@@ -436,6 +424,7 @@ function lerURL() {
   estado.fuel = f && COMB[f] ? f : 'gasolina comum';
   estado.cidade = c && D.cidades.has(c) ? c : null;
   estado.posto = estado.cidade && p && D.postos.get(p)?.municipio === estado.cidade ? p : null;
+  abasComCombustivel(estado.fuel);
 }
 
 /* ---------------- calculadora ---------------- */
@@ -471,17 +460,6 @@ function iniciarCalc() {
   const calc = document.querySelector<HTMLElement>('.calc');
   if (calc) calcEntrada(calc, 'l', true);
 }
-
-/* ---------------- dica ---------------- */
-
-const tip = () => $('#tip');
-function mostrarDica(html: string, x: number, y: number) {
-  const t = tip(); t.innerHTML = html; t.classList.add('on');
-  const w = t.offsetWidth, h = t.offsetHeight;
-  t.style.left = Math.max(8, x + 16 + w > innerWidth - 8 ? x - w - 16 : x + 16) + 'px';
-  t.style.top = Math.max(8, y + 16 + h > innerHeight - 8 ? y - h - 16 : y + 16) + 'px';
-}
-function esconderDica() { tip().classList.remove('on'); }
 
 /* ---------------- eventos ---------------- */
 

@@ -44,6 +44,8 @@ export const COMBUSTIVEIS: Combustivel[] = [
   { k: 'diesel s500', n: 'Diesel S500', l: 'diesel S500', u: 'litro', tot: 'DIES. S500', cod: 'S500', tanque: 50 },
   { k: 'gnv', n: 'GNV', l: 'GNV', u: 'm³', tot: 'GNV', cod: 'GNV', tanque: 15 },
 ];
+/** Artigo do combustível: "a gasolina comum", "o etanol", "o GNV". */
+export const artigo = (k: string) => (k.startsWith('gasolina') ? 'a' : 'o');
 export const COMB = Object.fromEntries(COMBUSTIVEIS.map((c) => [c.k, c])) as Record<string, Combustivel>;
 
 export type Preco = { preco: number; data: string };
