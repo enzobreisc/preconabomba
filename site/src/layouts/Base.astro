@@ -5,7 +5,7 @@ import '../styles/global.css';
 interface Props {
   titulo: string;
   descricao: string;
-  atual: 'panorama' | 'cidade' | 'etanol';
+  atual: 'panorama' | 'cidade' | 'etanol' | 'bandeiras';
 }
 const { titulo, descricao, atual } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
@@ -13,7 +13,7 @@ const abas = [
   { id: 'panorama', nome: 'Panorama', href: base },
   { id: 'cidade', nome: 'Minha cidade', href: `${base}minha-cidade/` },
   { id: 'etanol', nome: 'Etanol ou gasolina?', href: `${base}etanol/` },
-  { id: 'bandeiras', nome: 'Bandeiras' },
+  { id: 'bandeiras', nome: 'Bandeiras', href: `${base}bandeiras/` },
   { id: 'sobre', nome: 'Sobre os dados' },
 ];
 ---

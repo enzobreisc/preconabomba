@@ -1,0 +1,18 @@
+---
+// Bandeiras: quanto cada bandeira cobra acima ou abaixo da mediana da própria cidade.
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  titulo="Preço na Bomba · Bandeiras"
+  descricao="Posto de bandeira é mais caro? Quanto Ipiranga, Vibra, Shell e os postos de bandeira branca cobram acima ou abaixo da mediana da própria cidade, com os dados da ANP."
+  atual="bandeiras"
+>
+  <main class="f-main" id="app" aria-live="polite">
+    <p class="hint">Carregando os preços…</p>
+  </main>
+  <script>
+    import { iniciar } from '../scripts/bandeiras';
+    iniciar();
+  </script>
+</Base>
