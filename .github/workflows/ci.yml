@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Ruff e pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.11"
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest
+
+  site:
+    name: Build do site (dados sintéticos)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.11"
+          enable-cache: true
+      - run: uv sync --locked
+      # Gera o JSON a partir dos dados sintéticos: o build do site nunca depende da rede.
+      - run: uv run python -m preco_na_bomba.pipeline --amostra --saida "$RUNNER_TEMP/processed"
+      - uses: pnpm/action-setup@v6.1.1
+        with:
+          version: 10
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: site/.nvmrc
+          cache: pnpm
+          cache-dependency-path: site/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: site
+      - run: pnpm build
+        working-directory: site
