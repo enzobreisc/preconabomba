@@ -35,13 +35,9 @@ const abas = [
         </a>
       </header>
       <nav class="f-nav" aria-label="Seções">
-        {abas.map((a) =>
-          a.href ? (
-            <a href={a.href} data-aba={a.id} aria-current={a.id === atual ? 'page' : undefined}>{a.nome}</a>
-          ) : (
-            <span title="Em breve">{a.nome}</span>
-          ),
-        )}
+        {abas.map((a) => (
+          <a href={a.href} data-aba={a.id} aria-current={a.id === atual ? 'page' : undefined}>{a.nome}</a>
+        ))}
       </nav>
       <slot />
     </div>
