@@ -1,16 +1,61 @@
 ---
+// Minha cidade: estado → cidade → posto. Por enquanto só Santa Catarina.
+// Quando o Panorama existir, ele vira a página inicial e esta passa para /minha-cidade.
+import 'maplibre-gl/dist/maplibre-gl.css';
+import '../styles/global.css';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}favicon.svg`} />
+    <title>Preço na Bomba · Minha cidade</title>
+    <meta name="description" content="Preço dos combustíveis em cada posto de Santa Catarina, com os dados abertos da ANP." />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="f-head">
+        <span class="lg-wrap" role="img" aria-label="Preço na Bomba">
+          <svg width="29" height="35" viewBox="0 0 40 48" aria-hidden="true"><defs><clipPath id="gota"><path d="M20 2C20 2 5 19 5 31a15 15 0 0 0 30 0C35 19 20 2 20 2Z"></path></clipPath></defs><path d="M20 2C20 2 5 19 5 31a15 15 0 0 0 30 0C35 19 20 2 20 2Z" fill="#2a78d6"></path><g clip-path="url(#gota)"><path d="M0 29q5-4 10 0t10 0t10 0t10 0V50H0Z" fill="#184f95"></path></g><rect x="11" y="34" width="18" height="3" rx="1.5" fill="#fcfcfb"></rect><circle cx="29.5" cy="40.8" r="3.6" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.6"></circle></svg>
+          <span class="wm">Preço <i>na</i> Bomba</span>
+        </span>
+      </header>
+      <nav class="f-nav" aria-label="Seções">
+        <span title="Em breve">Panorama</span>
+        <a href="#" aria-current="page">Minha cidade</a>
+        <span title="Em breve">Etanol ou gasolina?</span>
+        <span title="Em breve">Bandeiras</span>
+        <span title="Em breve">Sobre os dados</span>
+      </nav>
+
+      <main class="f-main" id="app">
+        <nav class="crumbs" id="crumbs" aria-label="Você está em"></nav>
+        <section id="topo" aria-live="polite"><p class="hint">Carregando os postos…</p></section>
+        <div class="palco" id="palco" data-passo="1">
+          <div class="p-front" id="front"></div>
+          <div class="p-mapa" id="p-mapa">
+            <div class="card-h"><h4>Onde fica</h4><span id="onde"></span></div>
+            <div class="mapa-box">
+              <div id="mapa" role="region" aria-label="Mapa"></div>
+              <div class="cm-top" id="cm-top"></div>
+              <div class="cm-leg" id="cm-leg"></div>
+            </div>
+            <p class="nota-mapa" id="nota-mapa"></p>
+          </div>
+          <aside class="p-side" id="side"></aside>
+        </div>
+        <p class="foot">
+          Fonte: ANP, Levantamento de Preços de Combustíveis, pesquisa semanal por amostragem de postos. Preço
+          mais recente de cada posto nas últimas semanas. Localização a partir do endereço, com o{' '}
+          <a href="https://nominatim.org/">Nominatim</a> e dados do OpenStreetMap.
+        </p>
+      </main>
+    </div>
+    <div id="tip" role="tooltip"></div>
+    <script>
+      import { iniciar } from '../scripts/minha-cidade';
+      iniciar();
+    </script>
+  </body>
 </html>
