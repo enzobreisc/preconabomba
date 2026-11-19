@@ -9,7 +9,7 @@ from preco_na_bomba.pipeline import TABELAS, main
 @pytest.fixture(scope="module")
 def saida(tmp_path_factory):
     destino = tmp_path_factory.mktemp("processed")
-    assert main(["--amostra", "--saida", str(destino)]) == 0
+    assert main(["--amostra", "--saida", str(destino), "--sem-json"]) == 0
     return destino
 
 
@@ -81,3 +81,28 @@ def test_falha_com_codigo_1_quando_nao_ha_rede(tmp_path, monkeypatch):
 
     monkeypatch.setattr(fontes, "ler_pagina", sem_rede)
     assert main(["--saida", str(tmp_path / "x"), "--cache", str(tmp_path / "c")]) == 1
+
+
+def test_exporta_json_para_o_site(tmp_path):
+    saida_json = tmp_path / "json"
+    assert main(["--amostra", "--saida", str(tmp_path / "p"), "--saida-json", str(saida_json)]) == 0
+    semanal = json.loads((saida_json / "semanal.json").read_text(encoding="utf-8"))
+    assert {"semana", "uf", "produto", "mediana", "p10", "p90"} <= set(semanal[0])
+    assert semanal[0]["semana"][:2] == "20"  # data em ISO, não timestamp
+    sp = json.loads((saida_json / "postos" / "SP.json").read_text(encoding="utf-8"))
+    assert {linha["uf"] for linha in sp} == {"SP"}  # postos dividido por UF
+    assert len(list((saida_json / "postos").glob("*.json"))) == 27
+    assert json.loads((saida_json / "metadados.json").read_text(encoding="utf-8"))["sintetico"]
+
+
+def test_sem_json_nao_cria_pasta(tmp_path):
+    assert main(["--amostra", "--saida", str(tmp_path / "p"), "--sem-json"]) == 0
+
+
+def test_exporta_json_a_partir_dos_parquets(saida, tmp_path):
+    from preco_na_bomba.exportar import main as exportar_main
+
+    destino = tmp_path / "json"
+    assert exportar_main(["--entrada", str(saida), "--saida", str(destino)]) == 0
+    assert (destino / "semanal.json").exists()
+    assert len(list((destino / "postos").glob("*.json"))) == 27

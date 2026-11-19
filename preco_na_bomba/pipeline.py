@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import agregacoes, amostra, extracao, fontes, limpeza
+from . import agregacoes, amostra, exportar, extracao, fontes, limpeza
 
 TABELAS = [
     "semanal", "postos", "municipios", "bandeiras", "paridade_uf", "paridade_municipios",
@@ -58,7 +58,13 @@ def carregar_real(ano_inicial: int, cache: Path) -> tuple[pd.DataFrame, list[str
     return df.reset_index(drop=True), [a.url for a in arquivos]
 
 
-def executar(use_amostra: bool, ano_inicial: int, saida: Path, cache: Path) -> dict:
+def executar(
+    use_amostra: bool,
+    ano_inicial: int,
+    saida: Path,
+    cache: Path,
+    saida_json: Path | None = exportar.SAIDA_PADRAO,
+) -> dict:
     if use_amostra:
         df, arquivos = limpeza.limpar(amostra.gerar_amostra()), []
         fonte = "Dados sintéticos de demonstração (não são da ANP)"
@@ -85,6 +91,8 @@ def executar(use_amostra: bool, ano_inicial: int, saida: Path, cache: Path) -> d
         "tabelas": {nome: len(tab) for nome, tab in tabelas.items()},
     }
     gravar(tabelas, metadados, saida)
+    if saida_json is not None:
+        exportar.exportar_json(tabelas, metadados, saida_json)
     return metadados
 
 
@@ -94,9 +102,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--ano-inicial", type=int, default=2024)
     p.add_argument("--saida", type=Path, default=Path("data/processed"))
     p.add_argument("--cache", type=Path, default=Path("data/raw"))
+    p.add_argument("--saida-json", type=Path, default=exportar.SAIDA_PADRAO)
+    p.add_argument("--sem-json", action="store_true", help="não exporta JSON para o site")
     args = p.parse_args(argv)
     try:
-        meta = executar(args.amostra, args.ano_inicial, args.saida, args.cache)
+        saida_json = None if args.sem_json else args.saida_json
+        meta = executar(args.amostra, args.ano_inicial, args.saida, args.cache, saida_json)
     except Exception as erro:  # noqa: BLE001
         print(f"erro: {erro}", file=sys.stderr)
         return 1
