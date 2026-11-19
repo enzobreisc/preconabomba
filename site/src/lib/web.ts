@@ -28,11 +28,21 @@ export function esconderDica() {
   tip().classList.remove('on');
 }
 
-/** O combustível escolhido acompanha a troca de aba (#comb=etanol). */
-export function abasComCombustivel(comb: string) {
+/** O combustível e o estado escolhidos acompanham a troca de aba (#uf=MG&comb=etanol).
+ *  Cada tela informa só o que ela tem; o resto vem do endereço com que ela foi aberta. */
+const contexto = (() => {
+  const q = new URLSearchParams(location.hash.slice(1));
+  return { comb: q.get('comb') ?? 'gasolina comum', uf: (q.get('uf') ?? 'SC').toUpperCase() };
+})();
+export function abasCom(p: { comb?: string; uf?: string }) {
+  Object.assign(contexto, p);
+  const q = new URLSearchParams();
+  if (contexto.uf !== 'SC') q.set('uf', contexto.uf);
+  if (contexto.comb !== 'gasolina comum') q.set('comb', contexto.comb);
   document.querySelectorAll<HTMLAnchorElement>('.f-nav a[data-aba]').forEach((a) => {
     const u = new URL(a.href);
-    u.hash = comb === 'gasolina comum' ? '' : `comb=${encodeURIComponent(comb)}`;
+    u.hash = q.toString();
     a.href = u.toString();
   });
 }
+export const abasComCombustivel = (comb: string) => abasCom({ comb });
