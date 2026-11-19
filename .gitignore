@@ -1,0 +1,23 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.env
+.DS_Store
+.idea/
+.vscode/
+build/
+dist/
+*.egg-info/
+
+# Dados brutos nunca entram no repositório; só os agregados em data/processed
+data/raw/*
+!data/raw/.gitkeep
+*.zip
+*.csv
+!tests/fixtures/*.csv
+
+.streamlit/secrets.toml
