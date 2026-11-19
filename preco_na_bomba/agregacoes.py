@@ -73,7 +73,11 @@ def municipios(
 def bandeiras(
     df: pd.DataFrame, semanas: int = 12, min_postos: int = MIN_POSTOS, min_obs: int = 30
 ) -> pd.DataFrame:
-    """Prêmio de cada bandeira sobre a mediana da MESMA cidade e semana (nunca entre estados)."""
+    """Prêmio de cada bandeira sobre a mediana da MESMA cidade e semana (nunca entre estados).
+
+    O prêmio é a média, não a mediana: a maioria dos postos cobra exatamente a mediana da cidade,
+    e a mediana dos prêmios sairia 0 para quase todas as bandeiras.
+    """
     base = janela(df, semanas).copy()
     chave = ["uf", "municipio", "semana", "produto"]
     g = base.groupby(chave, observed=True)
@@ -90,8 +94,8 @@ def bandeiras(
             n_obs=("premio", "size"),
             n_postos=("cnpj", "nunique"),
             n_cidades=("municipio", "nunique"),
-            premio_medio=("premio", "median"),
-            premio_pct=("premio_pct", "median"),
+            premio_medio=("premio", "mean"),
+            premio_pct=("premio_pct", "mean"),
         )
         .reset_index()
     )

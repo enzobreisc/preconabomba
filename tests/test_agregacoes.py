@@ -92,6 +92,25 @@ def test_bandeiras_compara_com_a_mediana_da_mesma_cidade_e_semana():
     assert b.loc["Shell", "n_cidades"] == 2
 
 
+def test_bandeiras_usa_a_media_do_premio():
+    # Quase todo posto cobra a mediana da cidade: a mediana do prêmio seria 0 para todas.
+    df = dados(
+        ("SP", "A", "1", "gasolina comum", "Shell", 6.00, 0),
+        ("SP", "A", "2", "gasolina comum", "Vibra", 6.00, 0),
+        ("SP", "A", "3", "gasolina comum", "Bandeira branca", 6.00, 0),
+        ("SP", "B", "4", "gasolina comum", "Shell", 6.50, 0),
+        ("SP", "B", "5", "gasolina comum", "Vibra", 6.00, 0),
+        ("SP", "B", "6", "gasolina comum", "Bandeira branca", 6.00, 0),
+        ("SP", "C", "7", "gasolina comum", "Shell", 6.00, 0),
+        ("SP", "C", "8", "gasolina comum", "Vibra", 6.00, 0),
+        ("SP", "C", "9", "gasolina comum", "Bandeira branca", 5.70, 0),
+    )
+    b = ag.bandeiras(df, min_obs=1).set_index("bandeira")
+    assert b.loc["Shell", "premio_medio"] == pytest.approx(0.5 / 3)
+    assert b.loc["Bandeira branca", "premio_medio"] == pytest.approx(-0.1)
+    assert b.loc["Shell", "premio_pct"] == pytest.approx(0.5 / 6 * 100 / 3)
+
+
 def test_bandeiras_ignora_cidade_com_uma_so_bandeira():
     df = dados(*[("SP", "A", str(i), "etanol", "Vibra", 5.0 + i, 0) for i in range(4)])
     assert ag.bandeiras(df, min_obs=1).empty
