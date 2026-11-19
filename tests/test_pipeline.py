@@ -58,7 +58,6 @@ def test_esquemas_das_tabelas(saida):
             "etanol_compensa",
         },  # fmt: skip
         "paridade_municipios": {"uf", "municipio", "razao", "etanol_compensa"},
-        "assimetria": {"uf", "produto", "n_altas", "n_quedas", "media_alta", "media_queda"},
     }
     for nome, colunas in esperado.items():
         tab = pd.read_parquet(saida / f"{nome}.parquet")
@@ -77,11 +76,6 @@ def test_conteudo_coerente(saida):
         .isin(["Vibra", "Ipiranga", "Shell", "Alesat", "Bandeira branca"])
         .any()
     )
-
-
-def test_assimetria_tem_altas_maiores_que_quedas(saida):
-    a = pd.read_parquet(saida / "assimetria.parquet")
-    assert (a["razao"] > 1).mean() > 0.5  # a amostra foi gerada com altas mais fortes
 
 
 def test_falha_com_codigo_1_quando_nao_ha_rede(tmp_path, monkeypatch):

@@ -7,7 +7,6 @@ import pandas as pd
 LITROS_TANQUE = 50.0
 LIMIAR_ETANOL = 0.70
 MIN_POSTOS = 3
-SETE_DIAS = pd.Timedelta(days=7)
 
 
 def janela(df: pd.DataFrame, semanas: int) -> pd.DataFrame:
@@ -127,28 +126,3 @@ def paridade_municipios(
 ) -> pd.DataFrame:
     """Razão etanol/gasolina por cidade nas últimas semanas (cidades com postos suficientes)."""
     return _paridade(janela(df, semanas), ["uf", "municipio"], min_postos)
-
-
-def assimetria(tab_semanal: pd.DataFrame) -> pd.DataFrame:
-    """Tamanho médio das altas e das quedas semanais, só entre semanas consecutivas."""
-    t = tab_semanal.sort_values(["uf", "produto", "semana"]).copy()
-    g = t.groupby(["uf", "produto"], observed=True)
-    t["variacao"] = g["mediana"].diff()
-    t["consecutiva"] = g["semana"].diff() == SETE_DIAS
-    t = t[t["consecutiva"] & t["variacao"].notna()]
-
-    chaves = ["uf", "produto"]
-    altas = t[t["variacao"] > 0].groupby(chaves, observed=True)["variacao"]
-    quedas = t[t["variacao"] < 0].groupby(chaves, observed=True)["variacao"]
-    out = pd.concat(
-        [
-            altas.size().rename("n_altas"),
-            altas.mean().rename("media_alta"),
-            quedas.size().rename("n_quedas"),
-            quedas.mean().abs().rename("media_queda"),
-        ],
-        axis=1,
-    ).reset_index()
-    out[["n_altas", "n_quedas"]] = out[["n_altas", "n_quedas"]].fillna(0).astype(int)
-    out["razao"] = out["media_alta"] / out["media_queda"]
-    return out

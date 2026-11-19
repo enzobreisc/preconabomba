@@ -14,7 +14,6 @@ from . import agregacoes, amostra, exportar, extracao, fontes, limpeza
 
 TABELAS = [
     "semanal", "postos", "municipios", "bandeiras", "paridade_uf", "paridade_municipios",
-    "assimetria",
 ]  # fmt: skip
 
 
@@ -28,7 +27,6 @@ def calcular_tabelas(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
         "bandeiras": agregacoes.bandeiras(df),
         "paridade_uf": agregacoes.paridade_uf(df),
         "paridade_municipios": agregacoes.paridade_municipios(df),
-        "assimetria": agregacoes.assimetria(semanal),
     }
 
 

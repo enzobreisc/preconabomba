@@ -147,13 +147,3 @@ def test_paridade_municipios_exige_3_postos_por_produto():
     p = ag.paridade_municipios(dados(*linhas))
     assert list(p["municipio"]) == ["A"]
     assert p.loc[0, "razao"] == pytest.approx(4 / 6)
-
-
-def test_assimetria_so_conta_semanas_consecutivas():
-    # semanas 1, 2, 4, 5: a queda 2 -> 4 cruza um buraco e NÃO entra.
-    precos = {1: 6.00, 2: 6.20, 4: 6.00, 5: 5.90}
-    df = dados(*[("SP", "A", "1", "etanol", "Vibra", p, n) for n, p in precos.items()])
-    a = ag.assimetria(ag.semanal(df)).set_index(["uf", "produto"]).loc[("SP", "etanol")]
-    assert a["n_altas"] == 1 and a["media_alta"] == pytest.approx(0.20)
-    assert a["n_quedas"] == 1 and a["media_queda"] == pytest.approx(0.10)
-    assert a["razao"] == pytest.approx(2.0)

@@ -53,7 +53,7 @@ def gerar_amostra(
     for uf, capital in CAPITAIS.items():
         fator_etanol = rng.uniform(0.64, 0.76)  # parte dos estados abaixo de 70%, parte acima
         base = 5.80 + rng.uniform(-0.4, 0.6)
-        # Índice semanal do estado: altas fortes e quedas lentas (assimetria).
+        # Índice semanal do estado: altas fortes e quedas lentas.
         passos = np.where(
             rng.random(semanas) < 0.4,
             np.abs(rng.normal(0.012, 0.004, semanas)),
