@@ -1,0 +1,99 @@
+---
+// Sobre os dados: fonte, tratamento, limites e os metadados da última atualização (lidos do JSON).
+import Base from '../layouts/Base.astro';
+
+const passos = [
+  ['Site da ANP', 'CSV e ZIP'],
+  ['Descobrir', 'links na página'],
+  ['Baixar', 'com cache'],
+  ['Limpar', 'e padronizar'],
+  ['Agregar', '7 tabelas'],
+  ['Site', 'GitHub Pages'],
+];
+---
+
+<Base
+  titulo="Preço na Bomba · Sobre os dados"
+  descricao="De onde vêm os preços do Preço na Bomba: a pesquisa semanal da ANP, como os dados são tratados e o que os números não dizem."
+  atual="sobre"
+>
+  <main class="f-main">
+    <div class="hero rv" style="--i:0">
+      <p class="q">De onde vêm os números?</p>
+      <h2>Dados abertos da ANP, resumidos toda semana por um pipeline automático.</h2>
+      <p class="s" id="atualizado">
+        Os dados brutos nunca entram no repositório. Só as tabelas resumidas, de poucos MB, alimentam o site.
+      </p>
+    </div>
+
+    <section class="panel rv" style="--i:1" aria-label="Do site da ANP ao site">
+      <ol class="fluxo">
+        {passos.map(([a, b]) => <li><b>{a}</b><span>{b}</span></li>)}
+      </ol>
+    </section>
+
+    <div class="cols">
+      <div class="stack prose rv" style="--i:2">
+        <section>
+          <h3>Fonte</h3>
+          <p>
+            A base é a Série Histórica de Preços de Combustíveis da ANP, o Levantamento de Preços de Combustíveis.
+            É uma pesquisa semanal, feita por amostragem de postos. Cobre gasolina comum e aditivada, etanol, diesel
+            S10 e S500 e GNV. Toda segunda-feira o pipeline procura arquivos novos e atualiza o site.
+          </p>
+        </section>
+        <section>
+          <h3>Como tratamos</h3>
+          <p>
+            Descartamos preços fora de R$ 1 a R$ 20 (R$ 1 a R$ 10 no GNV), removemos duplicatas por posto, produto e
+            data e unificamos os nomes das bandeiras: Petrobras Distribuidora e BR viram Vibra, Raízen vira Shell.
+            Os preços são resumidos pela mediana, e não pela média, porque ela resiste a erros de digitação na
+            coleta.
+          </p>
+        </section>
+        <section>
+          <h3>O que os números não dizem</h3>
+          <ul>
+            <li>A pesquisa é amostral: nem todo posto aparece, e nem toda semana.</li>
+            <li>Os preços são nominais, sem correção pela inflação.</li>
+            <li>A variação semanal só vale entre semanas seguidas. Buracos na coleta distorcem a comparação.</li>
+            <li>Estados com poucas coletas na semana aparecem marcados com * e ficam fora dos destaques.</li>
+            <li>
+              Bandeiras só são comparadas dentro da mesma cidade e semana; o prêmio é a média dessas diferenças nas
+              últimas 12 semanas.
+            </li>
+            <li>A regra dos 70% do etanol é prática: o rendimento real varia com o carro e o uso.</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Outras fontes</h3>
+          <p>
+            Os nomes com acento das cidades vêm da lista de municípios do IBGE. A localização dos postos de Santa
+            Catarina foi obtida a partir do endereço, com o <a href="https://nominatim.org/">Nominatim</a> e dados
+            do <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>. O código está no{' '}
+            <a href="https://github.com/enzobreisc/preconabomba">GitHub</a>.
+          </p>
+        </section>
+      </div>
+      <div class="stack rv" style="--i:3">
+        <section class="panel">
+          <h3>Metadados desta atualização</h3>
+          <p class="sub">O arquivo <code>metadados.json</code> que o pipeline grava a cada execução.</p>
+          <pre class="meta" id="meta">Carregando…</pre>
+        </section>
+        <section class="panel">
+          <h3>Arquivos usados</h3>
+          <p class="sub">
+            Os nomes dos arquivos mensais mudam de um mês para o outro, por isso o pipeline lê os links da página da
+            ANP em vez de fixar endereços.
+          </p>
+          <div id="arquivos"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <script>
+    import { iniciar } from '../scripts/sobre';
+    iniciar();
+  </script>
+</Base>
