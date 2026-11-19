@@ -19,6 +19,8 @@ data/raw/*
 *.zip
 *.csv
 !tests/fixtures/*.csv
+# cache do geocodificador: versionado para cada posto ser consultado uma vez só
+!data/processed/geo_*.csv
 
 # JSON do site: gerado a partir dos parquets, nunca versionado
 site/public/data/

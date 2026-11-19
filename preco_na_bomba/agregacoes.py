@@ -45,10 +45,12 @@ def postos(df: pd.DataFrame, semanas: int = 4) -> pd.DataFrame:
     ultimo["mediana_municipio"] = g.transform("median")
     ultimo["rank_municipio"] = g.rank(method="min").astype(int)
     ultimo["dif_mediana"] = ultimo["preco"] - ultimo["mediana_municipio"]
+    # número, complemento e CEP servem para geocodificar; ficam de fora se o arquivo não os tiver
+    extras = [c for c in ("numero", "complemento", "cep") if c in ultimo]
     colunas = [
-        "uf", "municipio", "cnpj", "revenda", "bairro", "endereco", "produto", "bandeira",
-        "preco", "data_coleta", "n_postos_municipio", "mediana_municipio", "rank_municipio",
-        "dif_mediana",
+        "uf", "municipio", "cnpj", "revenda", "bairro", "endereco", *extras, "produto",
+        "bandeira", "preco", "data_coleta", "n_postos_municipio", "mediana_municipio",
+        "rank_municipio", "dif_mediana",
     ]  # fmt: skip
     return ultimo[colunas].sort_values(["uf", "municipio", "produto", "rank_municipio"])
 

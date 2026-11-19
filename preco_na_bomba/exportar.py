@@ -29,14 +29,36 @@ def _gravar(caminho: Path, conteudo: object) -> None:
     )
 
 
+def anexar_geo(tab_postos: pd.DataFrame, geo_dir: Path | None) -> pd.DataFrame:
+    """Junta latitude, longitude e precisão (cache do geocodificador) e o nome com acento."""
+    t = tab_postos.copy()
+    gp, gm = (
+        (geo_dir / "geo_postos.csv", geo_dir / "geo_municipios.csv") if geo_dir else (None,) * 2
+    )
+    if gp is not None and gp.exists():
+        geo = pd.read_csv(gp, dtype={"cnpj": str}).drop_duplicates("cnpj", keep="last")
+        t = t.merge(geo[["cnpj", "lat", "lon", "precisao"]], on="cnpj", how="left")
+    if gm is not None and gm.exists():
+        mun = pd.read_csv(gm).drop_duplicates(["uf", "municipio"], keep="last")
+        mun = mun.rename(columns={"nome": "municipio_nome"})[["uf", "municipio", "municipio_nome"]]
+        t = t.merge(mun, on=["uf", "municipio"], how="left")
+    return t
+
+
 def exportar_json(
-    tabelas: dict[str, pd.DataFrame], metadados: dict, saida: Path = SAIDA_PADRAO
+    tabelas: dict[str, pd.DataFrame],
+    metadados: dict,
+    saida: Path = SAIDA_PADRAO,
+    geo_dir: Path | None = None,
 ) -> list[Path]:
-    """Uma tabela por arquivo; `postos` é dividido por UF (o site baixa só o estado escolhido)."""
+    """Uma tabela por arquivo; `postos` é dividido por UF (o site baixa só o estado escolhido).
+
+    Com `geo_dir`, os postos levam as coordenadas e sai também `geo_municipios.json`.
+    """
     escritos: list[Path] = []
     for nome, tab in tabelas.items():
         if nome == "postos":
-            for uf, parte in tab.groupby("uf", observed=True):
+            for uf, parte in anexar_geo(tab, geo_dir).groupby("uf", observed=True):
                 caminho = saida / "postos" / f"{uf}.json"
                 _gravar(caminho, _registros(parte))
                 escritos.append(caminho)
@@ -44,6 +66,12 @@ def exportar_json(
             caminho = saida / f"{nome}.json"
             _gravar(caminho, _registros(tab))
             escritos.append(caminho)
+    gm = geo_dir / "geo_municipios.csv" if geo_dir else None
+    if gm is not None and gm.exists():
+        mun = pd.read_csv(gm).drop_duplicates(["uf", "municipio"], keep="last")
+        caminho = saida / "geo_municipios.json"
+        _gravar(caminho, _registros(mun.drop(columns=["consultado_em"], errors="ignore")))
+        escritos.append(caminho)
     caminho = saida / "metadados.json"
     _gravar(caminho, metadados)
     escritos.append(caminho)
@@ -56,7 +84,7 @@ def exportar_de_parquet(entrada: Path, saida: Path = SAIDA_PADRAO) -> list[Path]
 
     tabelas = {nome: pd.read_parquet(entrada / f"{nome}.parquet") for nome in TABELAS}
     metadados = json.loads((entrada / "metadados.json").read_text(encoding="utf-8"))
-    return exportar_json(tabelas, metadados, saida)
+    return exportar_json(tabelas, metadados, saida, geo_dir=entrada)
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -82,6 +82,13 @@ def test_virgula_decimal_cnpj_e_produto():
     assert df.loc[0, "municipio"] == "Sao Paulo"
 
 
+def test_guarda_numero_complemento_e_cep_para_geocodificar():
+    df = limpar(cru(linha(**{"Numero Rua": " 2024 ", "Complemento": None, "Cep": "88010-000"})))
+    assert df.loc[0, "numero"] == "2024"
+    assert df.loc[0, "complemento"] == ""
+    assert df.loc[0, "cep"] == "88010000"
+
+
 def test_produtos_mapeados_e_glp_descartado():
     produtos = ["GASOLINA", "GASOLINA ADITIVADA", "ETANOL", "DIESEL S10", "DIESEL", "GNV", "GLP"]
     dados = [

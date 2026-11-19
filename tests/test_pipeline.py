@@ -26,7 +26,18 @@ def test_gera_todas_as_tabelas_e_metadados(saida):
 def test_esquemas_das_tabelas(saida):
     esperado = {
         "semanal": {"semana", "uf", "produto", "mediana", "p10", "p90", "n_coletas"},
-        "postos": {"uf", "municipio", "cnpj", "produto", "preco", "rank_municipio", "dif_mediana"},
+        "postos": {
+            "uf",
+            "municipio",
+            "cnpj",
+            "endereco",
+            "numero",
+            "cep",
+            "produto",
+            "preco",
+            "rank_municipio",
+            "dif_mediana",
+        },  # fmt: skip
         "municipios": {
             "uf",
             "municipio",

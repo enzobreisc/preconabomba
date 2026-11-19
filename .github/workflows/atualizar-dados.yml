@@ -32,6 +32,12 @@ jobs:
           restore-keys: anp-raw-
       - run: uv sync --locked --no-dev
       - run: uv run python -m preco_na_bomba.pipeline --sem-json
+      # Só os postos novos ou que mudaram de endereço (o resto está no cache versionado).
+      # Se o Nominatim falhar, os dados de preço saem do mesmo jeito.
+      - name: Geocodifica postos novos de SC
+        run: uv run python -m preco_na_bomba.geocodificar --uf SC
+        continue-on-error: true
+        timeout-minutes: 10
       - name: Commit dos agregados (só se mudaram)
         id: commit
         run: |

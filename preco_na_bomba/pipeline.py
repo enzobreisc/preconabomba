@@ -92,7 +92,7 @@ def executar(
     }
     gravar(tabelas, metadados, saida)
     if saida_json is not None:
-        exportar.exportar_json(tabelas, metadados, saida_json)
+        exportar.exportar_json(tabelas, metadados, saida_json, geo_dir=saida)
     return metadados
 
 

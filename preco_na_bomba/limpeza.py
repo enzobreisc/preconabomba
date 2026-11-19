@@ -50,6 +50,10 @@ COLUNAS = {
     "bairro": "bairro",
     "nome_da_rua": "endereco",
     "endereco": "endereco",
+    "numero_rua": "numero",
+    "numero": "numero",
+    "complemento": "complemento",
+    "cep": "cep",
     "produto": "produto",
     "data_da_coleta": "data_coleta",
     "data_coleta": "data_coleta",
@@ -158,9 +162,11 @@ def limpar(df: pd.DataFrame) -> pd.DataFrame:
     df["cnpj"] = df["cnpj"].astype(str).str.replace(r"\D", "", regex=True).str.zfill(14)
     df["municipio"] = df["municipio"].map(titulo_municipio)
     df["bandeira"] = df["bandeira"].map(unificar_bandeira)
-    for coluna in ("revenda", "bairro", "endereco"):
+    for coluna in ("revenda", "bairro", "endereco", "numero", "complemento"):
         if coluna in df:
-            df[coluna] = df[coluna].astype(str).str.strip()
+            df[coluna] = df[coluna].fillna("").astype(str).str.strip()
+    if "cep" in df:  # só os dígitos: '88010-000' e '88010000' viram o mesmo CEP
+        df["cep"] = df["cep"].fillna("").astype(str).str.replace(r"\D", "", regex=True)
 
     df = df.sort_values("data_coleta", kind="stable")
     df = df.drop_duplicates(["cnpj", "produto", "data_coleta"], keep="last")
