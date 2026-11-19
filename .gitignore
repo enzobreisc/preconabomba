@@ -20,4 +20,5 @@ data/raw/*
 *.csv
 !tests/fixtures/*.csv
 
-.streamlit/secrets.toml
+# JSON do site: gerado a partir dos parquets, nunca versionado
+site/public/data/

@@ -9,8 +9,6 @@ dependencies = [
     "pyarrow>=16",
     "requests>=2.32",
     "beautifulsoup4>=4.12",
-    "streamlit>=1.40,<2",
-    "plotly>=5.24,<7",
 ]
 
 [dependency-groups]

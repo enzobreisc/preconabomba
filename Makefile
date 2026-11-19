@@ -1,4 +1,4 @@
-.PHONY: setup lint fmt test pipeline amostra app req check
+.PHONY: setup lint fmt test pipeline amostra json site check
 
 setup:
 	uv sync
@@ -18,10 +18,10 @@ pipeline:
 amostra:
 	uv run python -m preco_na_bomba.pipeline --amostra
 
-app:
-	uv run streamlit run app.py
+json:
+	uv run python -m preco_na_bomba.exportar
 
-req:
-	uv export --no-dev --no-hashes --no-emit-project -o requirements.txt && echo "-e ." >> requirements.txt
+site:
+	cd site && pnpm install && pnpm dev
 
 check: lint test
