@@ -21,6 +21,8 @@ data/raw/*
 !tests/fixtures/*.csv
 # cache do geocodificador: versionado para cada posto ser consultado uma vez só
 !data/processed/geo_*.csv
+# nomes oficiais dos municípios (IBGE): python -m preco_na_bomba.nomes
+!data/processed/ibge_municipios.csv
 
 # JSON do site: gerado a partir dos parquets, nunca versionado
 site/public/data/

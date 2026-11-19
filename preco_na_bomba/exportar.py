@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from . import nomes
+
 SAIDA_PADRAO = Path("site/public/data")
 
 
@@ -71,6 +73,17 @@ def exportar_json(
         mun = pd.read_csv(gm).drop_duplicates(["uf", "municipio"], keep="last")
         caminho = saida / "geo_municipios.json"
         _gravar(caminho, _registros(mun.drop(columns=["consultado_em"], errors="ignore")))
+        escritos.append(caminho)
+    ibge = nomes.ler(geo_dir / "ibge_municipios.csv") if geo_dir else {}
+    if ibge:
+        pares = {
+            (str(uf), str(m))
+            for tab in tabelas.values()
+            if {"uf", "municipio"} <= set(tab.columns)
+            for uf, m in zip(tab["uf"], tab["municipio"], strict=True)
+        }
+        caminho = saida / "nomes_municipios.json"
+        _gravar(caminho, nomes.nomes_oficiais(pares, ibge))
         escritos.append(caminho)
     caminho = saida / "metadados.json"
     _gravar(caminho, metadados)

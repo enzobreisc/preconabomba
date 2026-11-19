@@ -41,3 +41,27 @@ def test_sem_cache_de_geo_o_json_continua_igual(tmp_path):
     exportar_json({"postos": postos}, {}, tmp_path, geo_dir=tmp_path / "nao_existe")
     sc = json.loads((tmp_path / "postos" / "SC.json").read_text(encoding="utf-8"))
     assert set(sc[0]) == {"uf", "municipio", "cnpj", "preco"}
+
+
+def test_nomes_oficiais_saem_do_ibge(tmp_path):
+    proc = tmp_path / "processed"
+    proc.mkdir()
+    (proc / "ibge_municipios.csv").write_text(
+        "uf,nome\nSP,São José do Rio Preto\nSP,Santa Bárbara d'Oeste\nSC,São José\n",
+        encoding="utf-8",
+    )
+    municipios = pd.DataFrame(
+        [
+            {"uf": "SP", "municipio": "Sao Jose do Rio Preto", "produto": "etanol"},
+            {"uf": "SP", "municipio": "Santa Barbara D Oeste", "produto": "etanol"},
+            {"uf": "SC", "municipio": "Cidade Nova", "produto": "etanol"},  # fora da lista
+        ]
+    )
+    saida = tmp_path / "site"
+    exportar_json({"municipios": municipios}, {}, saida, geo_dir=proc)
+
+    nomes = json.loads((saida / "nomes_municipios.json").read_text(encoding="utf-8"))
+    assert nomes == {
+        "SP|Sao Jose do Rio Preto": "São José do Rio Preto",
+        "SP|Santa Barbara D Oeste": "Santa Bárbara d'Oeste",
+    }
